@@ -447,7 +447,10 @@ option.ANISOTROPIC_FILTERING_QUALITY = Anisotropic Filtering Quality
 
 screen.RCAS = Robust Contrast Adaptive Sharpening (RCAS)
 option.FSR_RCAS = FSR RCAS Sharpening
-option.RCAS_ENABLE_NOISE_SUPPRESSION = Enable Noise Suppression
+option.RCAS_ENABLE_NOISE_SUPPRESSION = Noise Suppression
+option.RCAS_ENABLE_NOISE_SUPPRESSION.comment = Reduces noise amplification from sharpening. Good for high-ISO or grainy scenes.
+option.FSR_RCAS_DENOISE = Aggressive Denoise
+option.FSR_RCAS_DENOISE.comment = Stronger denoise on top of Noise Suppression. Use for low-light or high-quality renders.
 option.RCAS_SHARPNESS = Sharpening Intensity
 
 screen.Others = Others

@@ -447,7 +447,10 @@ option.ANISOTROPIC_FILTERING_QUALITY = 各向异性过滤质量
 
 screen.RCAS = 自适应锐化 (RCAS)
 option.FSR_RCAS = FSR自适应锐化
-option.RCAS_ENABLE_NOISE_SUPPRESSION = 启用噪点抑制
+option.RCAS_ENABLE_NOISE_SUPPRESSION = 噪点抑制
+option.RCAS_ENABLE_NOISE_SUPPRESSION.comment = 降低锐化对噪点的放大，适合高ISO感光度场景
+option.FSR_RCAS_DENOISE = 强力降噪
+option.FSR_RCAS_DENOISE.comment = 在噪点抑制基础上进一步降噪，适合低光照或高质量渲染
 option.RCAS_SHARPNESS = 锐化强度
 
 screen.Others = 其他
