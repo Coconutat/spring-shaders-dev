@@ -25,3 +25,15 @@
 #ifdef SPRINGFSR_LUMA_INSTABILITY
     #include "/lib/SpringFSR/LumaInstability.glsl"
 #endif
+
+#ifdef SPRINGFSR_REACTIVE_MASK
+    #include "/lib/SpringFSR/ReactiveMask.glsl"
+#endif
+
+#ifdef SPRINGFSR_SHADING_CHANGE
+    #include "/lib/SpringFSR/ShadingChange.glsl"
+#endif
+
+#if defined(SPRINGFSR_MODE) && SPRINGFSR_MODE > 0
+    #include "/lib/SpringFSR/EASU.glsl"
+#endif

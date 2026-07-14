@@ -48,6 +48,12 @@ void main() {
 		}
 	#endif
 
+	float shadingLuma = 0.0;
+	#ifdef SPRINGFSR_SHADING_CHANGE
+		// Store tonemapped luma (YCoCgR Y) for next frame's shading change comparison
+		shadingLuma = RGB2YCoCgR(ToneMap(nowColor)).r;
+	#endif
+
 #if defined(SPRINGFSR_LOCK)
 /* RENDERTARGETS: 0,2,10 */
 #elif defined(TAA_DEPTH_CONFIDENCE)
@@ -61,7 +67,7 @@ void main() {
 		gl_FragData[2] = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0);
 	#endif
 	#ifdef SPRINGFSR_LOCK
-		gl_FragData[2] = vec4(lock, 0.0, 0.0, 0.0);
+		gl_FragData[2] = vec4(lock, shadingLuma, 0.0, 0.0);
 	#endif
 }
 

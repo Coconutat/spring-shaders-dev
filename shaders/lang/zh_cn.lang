@@ -465,6 +465,19 @@ option.SPRINGFSR_SPHERE_CLIP.comment = 用球体替代AABB裁剪历史颜色。�
 option.SPRINGFSR_LUMA_INSTABILITY = 亮度不稳定检测
 option.SPRINGFSR_LUMA_INSTABILITY.comment = 检测亮度剧烈波动的像素（闪烁树叶/粒子），降低其累积权重防止闪烁积累
 
+screen.TAA = 时序抗锯齿（TAA）
+option.SPRINGFSR_REACTIVE_MASK = 透明度反应掩码
+option.SPRINGFSR_REACTIVE_MASK.comment = FSR3风格透明度检测。识别植物/水面/实体等透明区域，降低其历史帧权重减少鬼影
+option.SPRINGFSR_SHADING_CHANGE = 着色变化检测
+option.SPRINGFSR_SHADING_CHANGE.comment = FSR3风格光照变化检测。区分光照变化（日夜过渡/方块光照更新）和实际运动，避免不必要锁定重置
+
+screen.SpringFSR = SpringFSR升采样
+option.SPRINGFSR_MODE.0 = 关闭
+option.SPRINGFSR_MODE.1 = 质量 (0.77x)
+option.SPRINGFSR_MODE.2 = 平衡 (0.67x)
+option.SPRINGFSR_MODE.3 = 性能 (0.50x)
+option.SPRINGFSR_MODE.comment = 基于AMD FSR1 EASU的边缘自适应升采样。低分辨率渲染+空间升采样，提升性能
+
 screen.Others = 其他
 option.NOON_DURATION = 中午时长
 option.NIGHT_DURATION = 夜晚时长

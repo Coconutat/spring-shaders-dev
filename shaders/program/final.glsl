@@ -40,11 +40,22 @@ vec3 sRGBEncodeSafe(vec3 c) {
 
 
 void main() {
+#if SPRINGFSR_MODE > 0
+	// EASU-upscaled path: read from colortex14 (full res)
+	vec3 ec = texture(colortex14, texcoord).rgb;
+
+	#ifdef SPRINGFSR_RCAS
+		ec = fsrRCAS(colortex14, ivec2(gl_FragCoord.xy));
+	#endif
+
+	vec4 color = vec4(ec, 1.0);
+#else
 	#ifdef SPRINGFSR_RCAS
 		vec4 color = vec4(fsrRCAS(colortex0, ivec2(gl_FragCoord.xy)), 1.0);
 	#else
 		vec4 color = max(texture(colortex0, texcoord), 0.0);
 	#endif
+#endif
 
 	#if defined(HDR_MOD_INSTALLED) && defined(HDR_ENABLED)
 		color.rgb *= HdrGamePaperWhiteBrightness / max(HdrUIBrightness, 1.0);
@@ -77,12 +88,18 @@ void main() {
 	// color.rgb = vec3(temporalBayer64(gl_FragCoord.xy));
 	// color.rgb = vec3(textureLod(shadowtex1, texcoord, 0).r);
 	
+#if SPRINGFSR_MODE > 0
+	// Write to screen at full resolution (no RENDERTARGETS)
+	// colortex14 has the EASU-upscaled image, output directly to display
+	gl_FragData[0] = vec4(color.rgb, 1.0);
+#else
 /* RENDERTARGETS: 0 */
 	#if defined(HDR_MOD_INSTALLED) && defined(HDR_ENABLED)
 		gl_FragData[0] = vec4(color.rgb, 1.0);
 	#else
 		gl_FragData[0] = saturate(vec4(color.rgb, 1.0));
 	#endif
+#endif
 }
 
 #endif

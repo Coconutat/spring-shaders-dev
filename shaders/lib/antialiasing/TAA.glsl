@@ -15,7 +15,7 @@ float depth_confidence(float depth1, vec2 velocity){
     prePos.xyz = 0.5 * prePos.xyz + 0.5;
     if(outScreen(prePos.xyz)) return 0.0;
 
-    float pDepth1 = texelFetch(colortex12, ivec2(prePos.xy * viewSize), 0).r;
+    float pDepth1 = texelFetch(colortex12, ivec2(prePos.xy * viewSize * SPRINGFSR_RENDER_SCALE), 0).r;
     vec4 pScreenPos = vec4(prePos.xy, pDepth1, 1.0);
     vec4 pViewPos = gbufferPreviousProjectionInverse * vec4(pScreenPos.xyz * 2.0 - 1.0, pScreenPos.w);
     pViewPos /= pViewPos.w;
@@ -165,6 +165,10 @@ void TAA(inout vec3 nowColor, out float lockOut){
         float preLuma = preColor.r;
     #endif
 
+    #ifdef SPRINGFSR_REACTIVE_MASK
+        float reactiveMask = computeReactiveMask(texcoord);
+    #endif
+
     preColor = clipHistory(nowColor, preColor, depthConfidence);
 
     preColor = UnToneMap(YCoCgR2RGB(preColor));
@@ -181,12 +185,24 @@ void TAA(inout vec3 nowColor, out float lockOut){
         blendFactor = applyInstability(blendFactor, instability);
     #endif
 
+    #ifdef SPRINGFSR_REACTIVE_MASK
+        blendFactor = applyReactiveMask(blendFactor, reactiveMask);
+    #endif
+
     #ifdef SPRINGFSR_LOCK
-        // Read previous frame lock from colortex10.r
+        // Read previous frame lock from colortex10.rg
         float lockPrev = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).r;
         float lock = computeLock(lockPrev, velocity, depthConfidence, texcoord);
         blendFactor = applyLock(lock, blendFactor);
         lockOut = lock;
+    #endif
+
+    #ifdef SPRINGFSR_SHADING_CHANGE
+        // Read prev shading luma from colortex10.g
+        float prevShadingLuma = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).g;
+        float curShadingLuma = nowColor.r;  // Y component = tonemapped luminance
+        float shadingChange = detectShadingChange(curShadingLuma, prevShadingLuma);
+        blendFactor = applyShadingChange(blendFactor, shadingChange);
     #endif
 
     nowColor = mix(preColor, nowColor, blendFactor);

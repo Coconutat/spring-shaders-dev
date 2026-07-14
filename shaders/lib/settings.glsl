@@ -166,9 +166,26 @@ const int noiseTextureResolution = 64;
 // SpringFSR Luma Instability (FSR3)
 // #define SPRINGFSR_LUMA_INSTABILITY
 
+// SpringFSR Reactive Mask (FSR3) — transparency ghosting prevention
+// #define SPRINGFSR_REACTIVE_MASK
 
+// SpringFSR Shading Change (FSR3) — lighting vs motion detection
+// #define SPRINGFSR_SHADING_CHANGE
 
+// SpringFSR Render Scale (FSR1 EASU upscale)
+// 0=Off, 1=Quality(0.77x), 2=Balanced(0.67x), 3=Performance(0.50x)
+#define SPRINGFSR_MODE 0        // [0 1 2 3]
 
+// Render scale factor derived from mode (used by TAA depth addressing)
+#if SPRINGFSR_MODE == 1
+    #define SPRINGFSR_RENDER_SCALE 0.77
+#elif SPRINGFSR_MODE == 2
+    #define SPRINGFSR_RENDER_SCALE 0.67
+#elif SPRINGFSR_MODE == 3
+    #define SPRINGFSR_RENDER_SCALE 0.50
+#else
+    #define SPRINGFSR_RENDER_SCALE 1.0
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define MIE_G 0.75              // [0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]

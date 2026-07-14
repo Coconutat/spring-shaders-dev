@@ -465,6 +465,19 @@ option.SPRINGFSR_SPHERE_CLIP.comment = Replaces AABB with sphere-based history c
 option.SPRINGFSR_LUMA_INSTABILITY = Luma Instability Detection
 option.SPRINGFSR_LUMA_INSTABILITY.comment = Detects pixels with rapid luminance fluctuation (flickering leaves/particles) and reduces their accumulation weight to prevent flicker buildup.
 
+screen.TAA = Temporal Anti-Aliasing (TAA)
+option.SPRINGFSR_REACTIVE_MASK = Reactive Mask
+option.SPRINGFSR_REACTIVE_MASK.comment = FSR3-style transparency detection. Identifies plants/water/entities as reactive regions to reduce history weight and prevent ghosting.
+option.SPRINGFSR_SHADING_CHANGE = Shading Change Detection
+option.SPRINGFSR_SHADING_CHANGE.comment = FSR3-style lighting change detection. Distinguishes lighting changes (day/night, block light updates) from actual motion to prevent unnecessary lock resets.
+
+screen.SpringFSR = SpringFSR Upscaling
+option.SPRINGFSR_MODE.0 = Off
+option.SPRINGFSR_MODE.1 = Quality (0.77x)
+option.SPRINGFSR_MODE.2 = Balanced (0.67x)
+option.SPRINGFSR_MODE.3 = Performance (0.50x)
+option.SPRINGFSR_MODE.comment = AMD FSR1 EASU-based edge-adaptive upscaling. Renders at lower resolution then spatially upscales for performance gains.
+
 screen.Others = Others
 option.NOON_DURATION = Noon Duration
 option.NIGHT_DURATION = Night Duration
