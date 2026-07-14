@@ -1,4 +1,7 @@
 .opencode
+*.zip
+*.7z
+*.rar
 
 # tmp caches
 tmpfiles/
