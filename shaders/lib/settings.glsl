@@ -147,20 +147,24 @@ const int noiseTextureResolution = 64;
 #define ANISOTROPIC_FILTERING_MODE 0        // [0 1]
 #define ANISOTROPIC_FILTERING_QUALITY 1.0   // [1.0 2.0 4.0 8.0 16.0]
 
-// Phase 1: RCAS
-#define FSR_RCAS
+// SpringFSR RCAS (FSR1 RCAS)
+#define SPRINGFSR_RCAS
 #define RCAS_LIMIT (0.25 - (1.0 / 16.0))
 #define RCAS_ENABLE_NOISE_SUPPRESSION
-// #define FSR_RCAS_DENOISE
+// #define SPRINGFSR_RCAS_DENOISE
 #define RCAS_SHARPNESS 0.92     // [0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.92 0.95 1.0]
 
-// Phase 2: TAA Enhancement
-// #define FSR_DEPTH_CLIP
-// #define FSR_LOCK
+// SpringFSR Depth Clip (FSR2)
+// #define SPRINGFSR_DEPTH_CLIP
 
-// Phase 3: FSR3 convergence
-// #define FSR3_CONVERGENCE
-// #define FSR3_LUMA_INSTABILITY
+// SpringFSR Lock (FSR2)
+// #define SPRINGFSR_LOCK
+
+// SpringFSR Sphere Clip (FSR3)
+// #define SPRINGFSR_SPHERE_CLIP
+
+// SpringFSR Luma Instability (FSR3)
+// #define SPRINGFSR_LUMA_INSTABILITY
 
 
 

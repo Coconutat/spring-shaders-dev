@@ -24,7 +24,7 @@ const bool shadowcolor1Mipmap = false;
 
 #include "/lib/camera/postFX.glsl"
 #include "/lib/camera/depthOfField.glsl"
-#include "/lib/antialiasing/FSR.glsl"
+#include "/lib/SpringFSR/SpringFSR.glsl"
 
 vec3 sRGBEncodeSafe(vec3 c) {
 	vec3 s = sign(c);
@@ -40,7 +40,7 @@ vec3 sRGBEncodeSafe(vec3 c) {
 
 
 void main() {
-	#ifdef FSR_RCAS
+	#ifdef SPRINGFSR_RCAS
 		vec4 color = vec4(fsrRCAS(colortex0, ivec2(gl_FragCoord.xy)), 1.0);
 	#else
 		vec4 color = max(texture(colortex0, texcoord), 0.0);

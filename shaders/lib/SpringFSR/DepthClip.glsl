@@ -1,4 +1,4 @@
-// FSR2-style Depth Clip for TAA
+// SpringFSR Depth Clip — FSR2-style depth-based history rejection
 // Ported from AMD FidelityFX FSR2 v2.3.3 (MIT license)
 //
 // Detects when reprojected history pixel is occluded by a closer surface,
@@ -48,29 +48,23 @@ float depthClipConfidence(vec2 uv, vec2 velocity, float currentDepth) {
                 float planeDepth = max(prevDepth, currentDepth);
 
                 vec3 center = (gbufferProjectionInverse * vec4(0.0, 0.0, planeDepth * 2.0 - 1.0, 1.0)).xyz;
-                vec3 corner = (gbufferProjectionInverse * vec4(-1.0, -1.0, planeDepth * 2.0 - 1.0, 1.0)).xyz;
-                center /= center.z;
-                corner /= corner.z;
+                float distThreshold = length(center) * 0.01;  // 1% of camera distance
 
-                float halfViewportWidth = length(viewSize);
-                float depthThreshold = max(currDist, prevDist);
-
-                const float sepFactor = 1.37e-05;
-                float fovFactor = length(center) / length(corner);
-                float requiredDepthSeparation = sepFactor * fovFactor * halfViewportWidth * depthThreshold;
-
-                float power = 2.0; // Simplified from FSR2's resolution-adaptive power
-                float confidence = pow(saturate(requiredDepthSeparation / max(distDiff, 1e-6)), power);
-
-                depthSum += confidence * bilinearWeight;
-                weightSum += bilinearWeight;
+                if (distDiff > distThreshold) {
+                    // Disoccluded: reduce weight significantly
+                    float strength = saturate((distDiff - distThreshold) / distThreshold);
+                    depthSum += (1.0 - strength) * bilinearWeight;
+                } else {
+                    depthSum += bilinearWeight;
+                }
             } else {
-                // Current pixel is closer or same distance → trust history
-                depthSum += 1.0 * bilinearWeight;
-                weightSum += bilinearWeight;
+                // Current pixel is closer → consistent depth
+                depthSum += bilinearWeight;
             }
+            weightSum += bilinearWeight;
         }
     }
 
-    return (weightSum > 0.0) ? saturate(depthSum / weightSum) : 0.0;
+    if (weightSum < 0.01) return 0.0;
+    return depthSum / weightSum;
 }

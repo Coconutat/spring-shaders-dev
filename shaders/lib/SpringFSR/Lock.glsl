@@ -1,4 +1,4 @@
-// FSR2-style pixel Lock for TAA
+// SpringFSR Lock — FSR2-style pixel lock for TAA
 // Ported from AMD FidelityFX FSR2 v2.3.3 (MIT license)
 //
 // Accumulates a per-pixel "lock" value for stable geometry.

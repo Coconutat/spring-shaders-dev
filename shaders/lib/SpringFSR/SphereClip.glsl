@@ -1,4 +1,4 @@
-// FSR3-style Sphere Clip for TAA history convergence
+// SpringFSR Sphere Clip — FSR3-style sphere-based history convergence
 // Replaces AABB clipping with sphere-based convergence.
 // Sphere is less prone to color shifting and converges faster
 // than axis-aligned box, especially on diagonal motion.

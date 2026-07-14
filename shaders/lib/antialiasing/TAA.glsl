@@ -69,7 +69,7 @@ void computeNeighborhoodStats(out vec3 mu, out vec3 sigma, out float gamma,
         gamma = max(gamma, 0.5);
     #endif
 
-    #ifdef FSR_DEPTH_CLIP
+    #ifdef SPRINGFSR_DEPTH_CLIP
         gamma += (1.0 - depthConfidence) * 2.0;
     #endif
 
@@ -104,25 +104,20 @@ vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
         return preColor;
 }
 
-#ifdef FSR3_CONVERGENCE
-    #include "/lib/antialiasing/TAASphereClip.glsl"
+// SpringFSR: FSR-inspired history clipping & instability detection
+#include "/lib/SpringFSR/SpringFSR.glsl"
 
-    // FSR3-style sphere clip — replaces AABB with faster-converging sphere
+#ifdef SPRINGFSR_SPHERE_CLIP
     vec3 clipHistory(vec3 nowColor, vec3 preColor, float depthConfidence) {
         vec3 mu, sigma;
         float gamma;
         computeNeighborhoodStats(mu, sigma, gamma, depthConfidence);
-        // Sphere centered at current pixel, radius = |sigma| * gamma
         return clipSphere(nowColor, preColor, sigma, gamma);
     }
 #else
     vec3 clipHistory(vec3 nowColor, vec3 preColor, float depthConfidence) {
         return clipAABB(nowColor, preColor, depthConfidence);
     }
-#endif
-
-#ifdef FSR3_LUMA_INSTABILITY
-    #include "/lib/antialiasing/TAALumaInstability.glsl"
 #endif
 
 float getBlendFactor(float depthConfidence, vec3 preColor, vec3 nowColor){
@@ -136,14 +131,6 @@ float getBlendFactor(float depthConfidence, vec3 preColor, vec3 nowColor){
     float blendFactor = max(fDepth, fLum) * 0.05;
     return clamp(blendFactor, 0.02, 0.05);
 }
-
-#ifdef FSR_DEPTH_CLIP
-    #include "/lib/antialiasing/TAADepthClip.glsl"
-#endif
-
-#ifdef FSR_LOCK
-    #include "/lib/antialiasing/TAALock.glsl"
-#endif
 
 void TAA(inout vec3 nowColor, out float lockOut){
     lockOut = 0.0;
@@ -168,13 +155,12 @@ void TAA(inout vec3 nowColor, out float lockOut){
         depthConfidence = depth_confidence(depth1, velocity) * (1.0 - edgeFactor);
     #endif
 
-    #ifdef FSR_DEPTH_CLIP
-        // Replace depth confidence with FSR2 depth clip when available
+    #ifdef SPRINGFSR_DEPTH_CLIP
         float fsrDepthConf = depthClipConfidence(texcoord, velocity, depth1);
         depthConfidence = max(depthConfidence, fsrDepthConf);
     #endif
 
-    #ifdef FSR3_LUMA_INSTABILITY
+    #ifdef SPRINGFSR_LUMA_INSTABILITY
         float curLuma = nowColor.r;  // Y component of YCoCgR
         float preLuma = preColor.r;
     #endif
@@ -190,12 +176,12 @@ void TAA(inout vec3 nowColor, out float lockOut){
         float blendFactor = getBlendFactor(depthConfidence, preColor, nowColor);
     #endif
 
-    #ifdef FSR3_LUMA_INSTABILITY
+    #ifdef SPRINGFSR_LUMA_INSTABILITY
         float instability = lumaInstability(curLuma, preLuma, lockOut);
         blendFactor = applyInstability(blendFactor, instability);
     #endif
 
-    #ifdef FSR_LOCK
+    #ifdef SPRINGFSR_LOCK
         // Read previous frame lock from colortex10.r
         float lockPrev = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).r;
         float lock = computeLock(lockPrev, velocity, depthConfidence, texcoord);

@@ -1,4 +1,4 @@
-// FSR3-style Luma Instability detection for TAA
+// SpringFSR Luma Instability — FSR3-style luminance instability detection
 // Detects pixels whose luminance fluctuates rapidly between frames.
 // High instability → reduce accumulation weight to prevent flicker buildup.
 //
@@ -7,7 +7,7 @@
 // Compute luma instability value: 0.0 = stable, 1.0 = highly unstable
 // currentLuma — tonemapped luma of current frame pixel
 // prevLuma    — tonemapped luma of reprojected history pixel
-// lockValue   — current lock value (0-1), from FSR_LOCK if enabled
+// lockValue   — current lock value (0-1), from SPRINGFSR_LOCK if enabled
 float lumaInstability(float currentLuma, float prevLuma, float lockValue) {
     float lumaDiff = abs(currentLuma - prevLuma);
 
@@ -28,12 +28,10 @@ float lumaInstability(float currentLuma, float prevLuma, float lockValue) {
     return saturate(instability);
 }
 
-// Apply luma instability to blend factor
-// blendFactor — original TAA blend factor (0.0 = full history, 1.0 = full current)
-// instability — 0.0 = stable, 1.0 = unstable
-// Returns: adjusted blend factor (higher = more current frame, less ghosting)
+// Apply instability to blend factor
+// blendFactor: original blend factor from TAA
+// instability: 0.0-1.0 from lumaInstability()
+// Returns: adjusted blend factor (up to 2x for unstable pixels)
 float applyInstability(float blendFactor, float instability) {
-    // When unstable, increase blend factor up to 2x
-    float instabilityBoost = 1.0 + instability;
-    return min(blendFactor * instabilityBoost, 1.0);
+    return blendFactor * (1.0 + instability);
 }

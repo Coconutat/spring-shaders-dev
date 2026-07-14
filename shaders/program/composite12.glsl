@@ -48,7 +48,7 @@ void main() {
 		}
 	#endif
 
-#if defined(FSR_LOCK)
+#if defined(SPRINGFSR_LOCK)
 /* RENDERTARGETS: 0,2,10 */
 #elif defined(TAA_DEPTH_CONFIDENCE)
 /* RENDERTARGETS: 0,2,12 */
@@ -60,7 +60,7 @@ void main() {
 	#ifdef TAA_DEPTH_CONFIDENCE
 		gl_FragData[2] = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0);
 	#endif
-	#ifdef FSR_LOCK
+	#ifdef SPRINGFSR_LOCK
 		gl_FragData[2] = vec4(lock, 0.0, 0.0, 0.0);
 	#endif
 }

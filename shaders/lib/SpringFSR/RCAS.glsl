@@ -1,5 +1,5 @@
-// AMD FidelityFX RCAS (Robust Contrast Adaptive Sharpening)
-// Ported from FidelityFX SDK v1.1.4 (MIT license)
+// SpringFSR RCAS — Robust Contrast Adaptive Sharpening
+// Ported from AMD FidelityFX FSR1 (MIT license)
 // https://github.com/GPUOpen-Effects/FidelityFX-FSR1
 
 // Approximate reciprocal — faster than full-precision 1.0/x.
@@ -50,7 +50,7 @@ vec3 fsrRCAS(sampler2D inputTexture, ivec2 fragCoord) {
     // AMD: nz = 0.25*(bL+dL+fL+hL) - eL, normalized by range, shaped by -0.5*x+1.0
     float nz = 1.0;
 
-#if defined(FSR_RCAS_DENOISE) || defined(RCAS_ENABLE_NOISE_SUPPRESSION)
+#if defined(SPRINGFSR_RCAS_DENOISE) || defined(RCAS_ENABLE_NOISE_SUPPRESSION)
     float bL = luma(b), dL = luma(d), eL = luma(e), fL = luma(f), hL = luma(h);
     float range = max3(max3(bL, dL, eL), fL, hL) - min3(min3(bL, dL, eL), fL, hL);
 
@@ -59,7 +59,7 @@ vec3 fsrRCAS(sampler2D inputTexture, ivec2 fragCoord) {
     float nzRaw = saturate(abs(avgNeiMinusCenter) * fastRcpMedium(max(range, 1e-4)));
     nz = -0.5 * nzRaw + 1.0;
 
-    #ifdef FSR_RCAS_DENOISE
+    #ifdef SPRINGFSR_RCAS_DENOISE
         // More aggressive denoise: squared shaping, hits noise harder while preserving edges
         nz = nz * nz;
     #endif

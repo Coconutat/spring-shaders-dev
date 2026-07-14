@@ -446,24 +446,24 @@ option.ANISOTROPIC_FILTERING_MODE = 各向异性过滤模式
 option.ANISOTROPIC_FILTERING_QUALITY = 各向异性过滤质量
 
 screen.RCAS = 自适应锐化 (RCAS)
-option.FSR_RCAS = FSR自适应锐化
+option.SPRINGFSR_RCAS = FSR自适应锐化
 option.RCAS_ENABLE_NOISE_SUPPRESSION = 噪点抑制
 option.RCAS_ENABLE_NOISE_SUPPRESSION.comment = 降低锐化对噪点的放大，适合高ISO感光度场景
-option.FSR_RCAS_DENOISE = 强力降噪
-option.FSR_RCAS_DENOISE.comment = 在噪点抑制基础上进一步降噪，适合低光照或高质量渲染
+option.SPRINGFSR_RCAS_DENOISE = 强力降噪
+option.SPRINGFSR_RCAS_DENOISE.comment = 在噪点抑制基础上进一步降噪，适合低光照或高质量渲染
 option.RCAS_SHARPNESS = 锐化强度
 
 screen.TAA = 时序抗锯齿（TAA）
-option.FSR_DEPTH_CLIP = 深度裁剪抗鬼影
-option.FSR_DEPTH_CLIP.comment = FSR2风格深度裁剪。检测深度不连续处（新遮挡物），减少TAA鬼影。开启后TAA方差裁剪范围自动扩大
-option.FSR_LOCK = 像素锁定抗闪烁
-option.FSR_LOCK.comment = 检测静止几何体，锁定历史帧完全信任，消除闪烁。需要FSR_DEPTH_CLIP协同工作
+option.SPRINGFSR_DEPTH_CLIP = 深度裁剪抗鬼影
+option.SPRINGFSR_DEPTH_CLIP.comment = FSR2风格深度裁剪。检测深度不连续处（新遮挡物），减少TAA鬼影。开启后TAA方差裁剪范围自动扩大
+option.SPRINGFSR_LOCK = 像素锁定抗闪烁
+option.SPRINGFSR_LOCK.comment = 检测静止几何体，锁定历史帧完全信任，消除闪烁。需要SPRINGFSR_DEPTH_CLIP协同工作
 
 screen.TAA = 时序抗锯齿（TAA）
-option.FSR3_CONVERGENCE = 球体收敛（FSR3）
-option.FSR3_CONVERGENCE.comment = 用球体替代AABB裁剪历史颜色。收敛更快、不易色偏。兼容TAA_DEPTH_CONFIDENCE和FSR_DEPTH_CLIP
-option.FSR3_LUMA_INSTABILITY = 亮度不稳定检测
-option.FSR3_LUMA_INSTABILITY.comment = 检测亮度剧烈波动的像素（闪烁树叶/粒子），降低其累积权重防止闪烁积累
+option.SPRINGFSR_SPHERE_CLIP = 球体收敛（FSR3）
+option.SPRINGFSR_SPHERE_CLIP.comment = 用球体替代AABB裁剪历史颜色。收敛更快、不易色偏。兼容TAA_DEPTH_CONFIDENCE和SPRINGFSR_DEPTH_CLIP
+option.SPRINGFSR_LUMA_INSTABILITY = 亮度不稳定检测
+option.SPRINGFSR_LUMA_INSTABILITY.comment = 检测亮度剧烈波动的像素（闪烁树叶/粒子），降低其累积权重防止闪烁积累
 
 screen.Others = 其他
 option.NOON_DURATION = 中午时长
