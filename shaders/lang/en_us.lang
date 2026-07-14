@@ -459,6 +459,12 @@ option.FSR_DEPTH_CLIP.comment = FSR2-style depth-based history rejection. Detect
 option.FSR_LOCK = Pixel Lock Anti-Flicker
 option.FSR_LOCK.comment = Locks stable geometry pixels to fully trust history, eliminating flicker. Requires FSR_DEPTH_CLIP for best results.
 
+screen.TAA = Temporal Anti-Aliasing (TAA)
+option.FSR3_CONVERGENCE = Sphere Clip Convergence (FSR3)
+option.FSR3_CONVERGENCE.comment = Replaces AABB with sphere-based history clipping. Faster convergence, less color shift. Compatible with TAA_DEPTH_CONFIDENCE and FSR_DEPTH_CLIP.
+option.FSR3_LUMA_INSTABILITY = Luma Instability Detection
+option.FSR3_LUMA_INSTABILITY.comment = Detects pixels with rapid luminance fluctuation (flickering leaves/particles) and reduces their accumulation weight to prevent flicker buildup.
+
 screen.Others = Others
 option.NOON_DURATION = Noon Duration
 option.NIGHT_DURATION = Night Duration

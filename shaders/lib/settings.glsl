@@ -158,6 +158,10 @@ const int noiseTextureResolution = 64;
 // #define FSR_DEPTH_CLIP
 // #define FSR_LOCK
 
+// Phase 3: FSR3 convergence
+// #define FSR3_CONVERGENCE
+// #define FSR3_LUMA_INSTABILITY
+
 
 
 

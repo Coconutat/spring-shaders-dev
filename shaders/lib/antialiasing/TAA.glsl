@@ -44,7 +44,10 @@ float edgeFactorFromMinMax(float zMin, float zMax, float zCenter){
     return smoothstep(t0, t1, rangeRel);
 }
 
-vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
+// Compute 3x3 neighborhood stats (mu, sigma) in YCoCgR tonemapped space
+// Used by both AABB and Sphere clipping.
+void computeNeighborhoodStats(out vec3 mu, out vec3 sigma, out float gamma,
+                              float depthConfidence) {
     vec3 m1 = vec3(0), m2 = vec3(0);
     for(int i = -1; i <= 1; i++){
     for(int j = -1; j <= 1; j++){
@@ -55,16 +58,19 @@ vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
     }
     }
 
-    float TAA_variance_clip_gamma = TAA_VARIANCE_CLIP_GAMMA;
+    const int N = 9;
+    mu = m1 / N;
+    sigma = sqrt(abs(m2 / N - mu * mu));
+
+    gamma = TAA_VARIANCE_CLIP_GAMMA;
 
     #ifdef TAA_DEPTH_CONFIDENCE
-        TAA_variance_clip_gamma += depthConfidence * TAA_DEPTH_CONFIDENCE_STRENGTH;
-        TAA_variance_clip_gamma = max(TAA_variance_clip_gamma, 0.5);
+        gamma += depthConfidence * TAA_DEPTH_CONFIDENCE_STRENGTH;
+        gamma = max(gamma, 0.5);
     #endif
 
     #ifdef FSR_DEPTH_CLIP
-        // Depth clip widens the AABB when disocclusion detected → less ghosting
-        TAA_variance_clip_gamma += (1.0 - depthConfidence) * 2.0;
+        gamma += (1.0 - depthConfidence) * 2.0;
     #endif
 
     #ifdef DEPTH_OF_FIELD
@@ -72,15 +78,17 @@ vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
         float radius = saturate(abs(coc) - DOF_FOCUS_TOLERANCE) * DOF_BOKEH_RADIUS;
         float zeroFac = radius < 0.5 ? 0.0 : 1.0;
         float radiusFac = remapSaturate(radius / DOF_BOKEH_RADIUS, 0.1, 0.5, 1.0, 0.5);
-        TAA_variance_clip_gamma += 1.0 * radiusFac * zeroFac;
+        gamma += 1.0 * radiusFac * zeroFac;
     #endif
+}
 
-    vec3 aabbMin = nowColor, aabbMax = nowColor;
-    const int N = 9;
-    vec3 mu = m1 / N;
-    vec3 sigma = sqrt(abs(m2 / N - mu * mu));
-    aabbMin = mu - TAA_variance_clip_gamma * sigma;
-    aabbMax = mu + TAA_variance_clip_gamma * sigma;
+vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
+    vec3 mu, sigma;
+    float gamma;
+    computeNeighborhoodStats(mu, sigma, gamma, depthConfidence);
+
+    vec3 aabbMin = mu - gamma * sigma;
+    vec3 aabbMax = mu + gamma * sigma;
 
     vec3 p_clip = 0.5 * (aabbMax + aabbMin);
     vec3 e_clip = 0.5 * (aabbMax - aabbMin);
@@ -95,6 +103,27 @@ vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
     else
         return preColor;
 }
+
+#ifdef FSR3_CONVERGENCE
+    #include "/lib/antialiasing/TAASphereClip.glsl"
+
+    // FSR3-style sphere clip — replaces AABB with faster-converging sphere
+    vec3 clipHistory(vec3 nowColor, vec3 preColor, float depthConfidence) {
+        vec3 mu, sigma;
+        float gamma;
+        computeNeighborhoodStats(mu, sigma, gamma, depthConfidence);
+        // Sphere centered at current pixel, radius = |sigma| * gamma
+        return clipSphere(nowColor, preColor, sigma, gamma);
+    }
+#else
+    vec3 clipHistory(vec3 nowColor, vec3 preColor, float depthConfidence) {
+        return clipAABB(nowColor, preColor, depthConfidence);
+    }
+#endif
+
+#ifdef FSR3_LUMA_INSTABILITY
+    #include "/lib/antialiasing/TAALumaInstability.glsl"
+#endif
 
 float getBlendFactor(float depthConfidence, vec3 preColor, vec3 nowColor){
     float lumPre = getLuminance(preColor);
@@ -145,7 +174,12 @@ void TAA(inout vec3 nowColor, out float lockOut){
         depthConfidence = max(depthConfidence, fsrDepthConf);
     #endif
 
-    preColor = clipAABB(nowColor, preColor, depthConfidence);
+    #ifdef FSR3_LUMA_INSTABILITY
+        float curLuma = nowColor.r;  // Y component of YCoCgR
+        float preLuma = preColor.r;
+    #endif
+
+    preColor = clipHistory(nowColor, preColor, depthConfidence);
 
     preColor = UnToneMap(YCoCgR2RGB(preColor));
     nowColor = UnToneMap(YCoCgR2RGB(nowColor));
@@ -154,6 +188,11 @@ void TAA(inout vec3 nowColor, out float lockOut){
         float blendFactor = TAA_BLEND_FACTOR;
     #else
         float blendFactor = getBlendFactor(depthConfidence, preColor, nowColor);
+    #endif
+
+    #ifdef FSR3_LUMA_INSTABILITY
+        float instability = lumaInstability(curLuma, preLuma, lockOut);
+        blendFactor = applyInstability(blendFactor, instability);
     #endif
 
     #ifdef FSR_LOCK

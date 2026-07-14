@@ -459,6 +459,12 @@ option.FSR_DEPTH_CLIP.comment = FSR2风格深度裁剪。检测深度不连续�
 option.FSR_LOCK = 像素锁定抗闪烁
 option.FSR_LOCK.comment = 检测静止几何体，锁定历史帧完全信任，消除闪烁。需要FSR_DEPTH_CLIP协同工作
 
+screen.TAA = 时序抗锯齿（TAA）
+option.FSR3_CONVERGENCE = 球体收敛（FSR3）
+option.FSR3_CONVERGENCE.comment = 用球体替代AABB裁剪历史颜色。收敛更快、不易色偏。兼容TAA_DEPTH_CONFIDENCE和FSR_DEPTH_CLIP
+option.FSR3_LUMA_INSTABILITY = 亮度不稳定检测
+option.FSR3_LUMA_INSTABILITY.comment = 检测亮度剧烈波动的像素（闪烁树叶/粒子），降低其累积权重防止闪烁积累
+
 screen.Others = 其他
 option.NOON_DURATION = 中午时长
 option.NIGHT_DURATION = 夜晚时长
