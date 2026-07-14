@@ -453,6 +453,12 @@ option.FSR_RCAS_DENOISE = Aggressive Denoise
 option.FSR_RCAS_DENOISE.comment = Stronger denoise on top of Noise Suppression. Use for low-light or high-quality renders.
 option.RCAS_SHARPNESS = Sharpening Intensity
 
+screen.TAA = Temporal Anti-Aliasing (TAA)
+option.FSR_DEPTH_CLIP = Depth Clip Anti-Ghosting
+option.FSR_DEPTH_CLIP.comment = FSR2-style depth-based history rejection. Detects disocclusion boundaries and reduces ghosting. Widens TAA variance clip range automatically.
+option.FSR_LOCK = Pixel Lock Anti-Flicker
+option.FSR_LOCK.comment = Locks stable geometry pixels to fully trust history, eliminating flicker. Requires FSR_DEPTH_CLIP for best results.
+
 screen.Others = Others
 option.NOON_DURATION = Noon Duration
 option.NIGHT_DURATION = Night Duration

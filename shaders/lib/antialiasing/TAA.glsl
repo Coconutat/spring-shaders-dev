@@ -62,6 +62,11 @@ vec3 clipAABB(vec3 nowColor, vec3 preColor, float depthConfidence){
         TAA_variance_clip_gamma = max(TAA_variance_clip_gamma, 0.5);
     #endif
 
+    #ifdef FSR_DEPTH_CLIP
+        // Depth clip widens the AABB when disocclusion detected → less ghosting
+        TAA_variance_clip_gamma += (1.0 - depthConfidence) * 2.0;
+    #endif
+
     #ifdef DEPTH_OF_FIELD
         float coc = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).a;
         float radius = saturate(abs(coc) - DOF_FOCUS_TOLERANCE) * DOF_BOKEH_RADIUS;
@@ -103,18 +108,24 @@ float getBlendFactor(float depthConfidence, vec3 preColor, vec3 nowColor){
     return clamp(blendFactor, 0.02, 0.05);
 }
 
+#ifdef FSR_DEPTH_CLIP
+    #include "/lib/antialiasing/TAADepthClip.glsl"
+#endif
 
-void TAA(inout vec3 nowColor){
+#ifdef FSR_LOCK
+    #include "/lib/antialiasing/TAALock.glsl"
+#endif
+
+void TAA(inout vec3 nowColor, out float lockOut){
+    lockOut = 0.0;
+
     vec4 nearFar = getClosestOffsetWithFarthest(texcoord.st, 1.0);
     vec2 velocity = texture(colortex9, nearFar.xy).xy;
-    // if(nearFar.z < 0.7) velocity = vec2(0.0);
     vec2 offsetUV = texcoord - velocity;
     if(outScreen(offsetUV)){
         return;
     }
 
-    // vec3 preColor = max(BLACK, texture(colortex2, offsetUV).rgb);
-    // vec3 preColor = max(BLACK, catmullRom(colortex2, offsetUV).rgb);
     vec3 preColor = max(BLACK, catmullRom5(colortex2, offsetUV, SHARPENING_FACTOR).rgb);
 
     nowColor = RGB2YCoCgR(ToneMap(nowColor));
@@ -122,11 +133,18 @@ void TAA(inout vec3 nowColor){
 
     float depth1 = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0).r;
     float depthConfidence = 0.0;
+
     #ifdef TAA_DEPTH_CONFIDENCE
         float edgeFactor = 0.0;
-        // edgeFactor = edgeFactorFromMinMax(nearFar.z, nearFar.w, depth1);
         depthConfidence = depth_confidence(depth1, velocity) * (1.0 - edgeFactor);
     #endif
+
+    #ifdef FSR_DEPTH_CLIP
+        // Replace depth confidence with FSR2 depth clip when available
+        float fsrDepthConf = depthClipConfidence(texcoord, velocity, depth1);
+        depthConfidence = max(depthConfidence, fsrDepthConf);
+    #endif
+
     preColor = clipAABB(nowColor, preColor, depthConfidence);
 
     preColor = UnToneMap(YCoCgR2RGB(preColor));
@@ -136,6 +154,14 @@ void TAA(inout vec3 nowColor){
         float blendFactor = TAA_BLEND_FACTOR;
     #else
         float blendFactor = getBlendFactor(depthConfidence, preColor, nowColor);
+    #endif
+
+    #ifdef FSR_LOCK
+        // Read previous frame lock from colortex10.r
+        float lockPrev = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).r;
+        float lock = computeLock(lockPrev, velocity, depthConfidence, texcoord);
+        blendFactor = applyLock(lock, blendFactor);
+        lockOut = lock;
     #endif
 
     nowColor = mix(preColor, nowColor, blendFactor);

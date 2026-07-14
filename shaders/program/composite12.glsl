@@ -29,7 +29,8 @@ const bool shadowcolor1Mipmap = false;
 
 void main() {
 	vec3 nowColor = texture(colortex0, texcoord).rgb;
-	TAA(nowColor);
+	float lock = 0.0;
+	TAA(nowColor, lock);
 	nowColor = max(nowColor, BLACK);
 
 	vec4 CT2 = texelFetch(colortex2, ivec2(gl_FragCoord.xy), 0);
@@ -47,7 +48,9 @@ void main() {
 		}
 	#endif
 
-#ifdef TAA_DEPTH_CONFIDENCE
+#if defined(FSR_LOCK)
+/* RENDERTARGETS: 0,2,10 */
+#elif defined(TAA_DEPTH_CONFIDENCE)
 /* RENDERTARGETS: 0,2,12 */
 #else
 /* RENDERTARGETS: 0,2 */
@@ -56,6 +59,9 @@ void main() {
 	gl_FragData[1] = CT2;
 	#ifdef TAA_DEPTH_CONFIDENCE
 		gl_FragData[2] = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0);
+	#endif
+	#ifdef FSR_LOCK
+		gl_FragData[2] = vec4(lock, 0.0, 0.0, 0.0);
 	#endif
 }
 
