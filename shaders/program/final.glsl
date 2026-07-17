@@ -40,7 +40,8 @@ vec3 sRGBEncodeSafe(vec3 c) {
 
 
 void main() {
-	#ifdef FSR_RCAS
+	// SR_INSTALLED 时由 Super Resolution Mod 接管锐化，避免双重锐化
+	#if defined(FSR_RCAS) && !defined(SR_INSTALLED)
 		vec4 color = vec4(fsrRCAS(colortex0, ivec2(gl_FragCoord.xy)), 1.0);
 	#else
 		vec4 color = max(texture(colortex0, texcoord), 0.0);
