@@ -336,7 +336,6 @@ void main() {
 	vec4 CT13 = vec4(0.0);
 	CT13.rg = pack4x8To2x16(vec4(albedo, ao));
 	vec4 CT9 = texelFetch(colortex9, ivec2(gl_FragCoord.xy), 0);
-
 /* RENDERTARGETS: 0,13,9 */
 	gl_FragData[0] = color;
 	gl_FragData[1] = CT13;

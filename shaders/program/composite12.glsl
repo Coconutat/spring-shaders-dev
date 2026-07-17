@@ -29,12 +29,9 @@ const bool shadowcolor1Mipmap = false;
 
 void main() {
 	vec3 nowColor = texture(colortex0, texcoord).rgb;
-	float lock = 0.0;
-	TAA(nowColor, lock);
+	vec2 lockData = vec2(0.0);
+	TAA(nowColor, lockData);
 	nowColor = max(nowColor, BLACK);
-
-	vec4 CT2 = texelFetch(colortex2, ivec2(gl_FragCoord.xy), 0);
-	CT2.rgb = nowColor;
 
 	#ifdef NETHER
 		nowColor = pow(nowColor, vec3(1.0)) * 1.5;
@@ -54,20 +51,22 @@ void main() {
 		shadingLuma = RGB2YCoCgR(ToneMap(nowColor)).r;
 	#endif
 
-#if defined(SPRINGFSR_LOCK)
-/* RENDERTARGETS: 0,2,10 */
-#elif defined(TAA_DEPTH_CONFIDENCE)
-/* RENDERTARGETS: 0,2,12 */
-#else
-/* RENDERTARGETS: 0,2 */
-#endif
+	vec4 CT2 = texelFetch(colortex2, ivec2(gl_FragCoord.xy), 0);
+	CT2.rgb = nowColor;
+	#if defined(SPRINGFSR_LOCK)
+	/* RENDERTARGETS: 0,2,10 */
+	#elif defined(TAA_DEPTH_CONFIDENCE)
+	/* RENDERTARGETS: 0,2,12 */
+	#else
+	/* RENDERTARGETS: 0,2 */
+	#endif
 	gl_FragData[0] = vec4(nowColor, 1.0);
 	gl_FragData[1] = CT2;
 	#ifdef TAA_DEPTH_CONFIDENCE
-		gl_FragData[2] = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0);
+		gl_FragData[1] = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0);
 	#endif
 	#ifdef SPRINGFSR_LOCK
-		gl_FragData[2] = vec4(lock, shadingLuma, 0.0, 0.0);
+		gl_FragData[1] = vec4(lockData.r, shadingLuma, 0.0, 0.0);
 	#endif
 }
 

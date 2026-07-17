@@ -172,17 +172,22 @@ const int noiseTextureResolution = 64;
 // SpringFSR Shading Change (FSR3) — lighting vs motion detection
 // #define SPRINGFSR_SHADING_CHANGE
 
-// SpringFSR Render Scale (FSR1 EASU upscale)
-// 0=Off, 1=Quality(0.77x), 2=Balanced(0.67x), 3=Performance(0.50x)
-#define SPRINGFSR_MODE 0        // [0 1 2 3]
+// #define SPRINGFSR_RECTIFY_HISTORY
+// #define SPRINGFSR_ACCUMULATION_MATRIX
 
-// Render scale factor derived from mode (used by TAA depth addressing)
+// SpringFSR Render Scale (FSR1 EASU upscale)
+// 0=Off, 1=Quality(0.77x), 2=Balanced(0.67x), 3=Performance(0.50x), 4=Ultra(0.33x)
+#define SPRINGFSR_MODE 1        // [0 1 2 3 4]
+
+// Render scale factor derived from mode (used by depth addressing & buffer sizing)
 #if SPRINGFSR_MODE == 1
     #define SPRINGFSR_RENDER_SCALE 0.77
 #elif SPRINGFSR_MODE == 2
     #define SPRINGFSR_RENDER_SCALE 0.67
 #elif SPRINGFSR_MODE == 3
     #define SPRINGFSR_RENDER_SCALE 0.50
+#elif SPRINGFSR_MODE == 4
+    #define SPRINGFSR_RENDER_SCALE 0.33
 #else
     #define SPRINGFSR_RENDER_SCALE 1.0
 #endif

@@ -41,7 +41,7 @@ vec3 sRGBEncodeSafe(vec3 c) {
 
 void main() {
 #if SPRINGFSR_MODE > 0
-	// EASU-upscaled path: read from colortex14 (full res)
+	// Read tonemapped LDR from CT14 (written by composite14)
 	vec3 ec = texture(colortex14, texcoord).rgb;
 
 	#ifdef SPRINGFSR_RCAS
@@ -55,7 +55,6 @@ void main() {
 	#else
 		vec4 color = max(texture(colortex0, texcoord), 0.0);
 	#endif
-#endif
 
 	#if defined(HDR_MOD_INSTALLED) && defined(HDR_ENABLED)
 		color.rgb *= HdrGamePaperWhiteBrightness / max(HdrUIBrightness, 1.0);
@@ -63,6 +62,7 @@ void main() {
 	#else
 		toGamma(color);
 	#endif
+#endif
 
 	#ifdef LETTER_BOX
 		color.rgb = applyLetterbox(color.rgb, LETTER_BOX_SIZE);
@@ -89,8 +89,13 @@ void main() {
 	// color.rgb = vec3(textureLod(shadowtex1, texcoord, 0).r);
 	
 #if SPRINGFSR_MODE > 0
-	// Write to screen at full resolution (no RENDERTARGETS)
-	// colortex14 has the EASU-upscaled image, output directly to display
+	// Tonemapped HDR→LDR done above, now gamma encode for display
+	#if defined(HDR_MOD_INSTALLED) && defined(HDR_ENABLED)
+		color.rgb *= HdrGamePaperWhiteBrightness / max(HdrUIBrightness, 1.0);
+		color.rgb = sRGBEncodeSafe(color.rgb);
+	#else
+		toGamma(color);
+	#endif
 	gl_FragData[0] = vec4(color.rgb, 1.0);
 #else
 /* RENDERTARGETS: 0 */

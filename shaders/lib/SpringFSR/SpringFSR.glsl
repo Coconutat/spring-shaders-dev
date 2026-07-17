@@ -34,6 +34,14 @@
     #include "/lib/SpringFSR/ShadingChange.glsl"
 #endif
 
+#ifdef SPRINGFSR_RECTIFY_HISTORY
+    #include "/lib/SpringFSR/RectifyHistory.glsl"
+#endif
+
+#ifdef SPRINGFSR_ACCUMULATION_MATRIX
+    #include "/lib/SpringFSR/AccumulationMatrix.glsl"
+#endif
+
 #if defined(SPRINGFSR_MODE) && SPRINGFSR_MODE > 0
     #include "/lib/SpringFSR/EASU.glsl"
 #endif

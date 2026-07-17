@@ -72,29 +72,13 @@ void main() {
 #endif
 	
 
-	vec4 CT1 = texelFetch(colortex1, ivec2(gl_FragCoord.xy), 0);
-	// color.rgb = texture(colortex1, texcoord * 0.5).rgb;
-
-	vec4 color1 = vec4(color.rgb / COLOR_UI_SCALE, 1.0);
-
-	vec4 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy), 0);            
+	vec4 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy), 0);
 	vec2 uv1 = texcoord * 2.0 - 1.0;
 	if(!outScreen(uv1)){
-		CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy - 0.5 * viewSize), 0);;
+		CT6 = texture(colortex6, texcoord - 0.5).rgbr;
 	}
 
-	// vec4 viewPos1R = screenPosToViewPos(vec4(texcoord.st, depth1, 1.0));
-	// vec4 worldPos1R = viewPosToWorldPos(viewPos1R);
-	// vec2 prePos = getPrePos(worldPos1R).xy;
-	// vec2 velocity = texcoord - prePos;
-
-	// vec3 worldDir = normalize(mat3(gbufferModelViewInverse) * viewPos1.xyz);
-	// color.rgb = texture(colortex7, clamp(0.5 * directionToOctahedral(worldDir), 0.0, 0.5 - 1.0 / 512.0)).rgb;
-	// color.rgb = vec3(texture(colortex3, texcoord * 0.5 + vec2(0.5)).rgb);
-	// color.rgb = texture(colortex3, texcoord).rgb;
-
-	// color.rgb = normalize(normalDecode(texelFetch(colortex9, ivec2(gl_FragCoord.xy * 2.0 - viewSize), 0).ba));
-
+	vec4 color1 = vec4(color.rgb / COLOR_UI_SCALE, 1.0);
 /* DRAWBUFFERS:0456 */
 	gl_FragData[0] = color;
 	gl_FragData[1] = color1;

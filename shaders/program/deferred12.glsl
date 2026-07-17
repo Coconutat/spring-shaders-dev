@@ -38,7 +38,7 @@ void main() {
 		vec4 hrrSpecularMap = unpack2x16To4x8(texelFetch(colortex4, ivec2(gl_FragCoord.xy * 2 - viewSize), 0).ba);
 		MaterialParams params = MapMaterialParams(hrrSpecularMap);
 		if(hrrSpecularMap.r > 0.5 / 255.0){
-			vec4 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy - 0.5 * viewSize), 0);
+			vec4 CT6 = texture(colortex6, texcoord - 0.5);
 			float hrrZ = CT6.g;
 			vec4 hrrViewPos = screenPosToViewPos(vec4(unTAAJitter(hrrUV), hrrZ, 1.0));
 			vec3 hrrViewDir = normalize(hrrViewPos.xyz);
@@ -48,7 +48,7 @@ void main() {
 			vec3 hrrNormalW = unpackNormal(CT6.r);
 			vec3 hrrNormalV = normalize(gbufferModelView * vec4(hrrNormalW, 0.0)).xyz;
 			vec3 NVO = hrrNormalV;
-			vec3 hrrNormalVO = normalize(normalDecode(texelFetch(colortex9, ivec2(gl_FragCoord.xy * 2.0 - viewSize), 0).ba));
+			vec3 hrrNormalVO = normalize(normalDecode(texture(colortex9, texcoord - 0.5).ba));
 			NVO = hrrNormalVO;
 
 			vec2 mcLightmap = texelFetch(colortex5, ivec2(gl_FragCoord.xy * 2 - viewSize), 0).ba;

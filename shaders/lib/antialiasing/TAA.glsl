@@ -74,7 +74,7 @@ void computeNeighborhoodStats(out vec3 mu, out vec3 sigma, out float gamma,
     #endif
 
     #ifdef DEPTH_OF_FIELD
-        float coc = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).a;
+        float coc = texelFetch(colortex0, ivec2(texcoord * viewSize), 0).a;
         float radius = saturate(abs(coc) - DOF_FOCUS_TOLERANCE) * DOF_BOKEH_RADIUS;
         float zeroFac = radius < 0.5 ? 0.0 : 1.0;
         float radiusFac = remapSaturate(radius / DOF_BOKEH_RADIUS, 0.1, 0.5, 1.0, 0.5);
@@ -132,8 +132,9 @@ float getBlendFactor(float depthConfidence, vec3 preColor, vec3 nowColor){
     return clamp(blendFactor, 0.02, 0.05);
 }
 
-void TAA(inout vec3 nowColor, out float lockOut){
-    lockOut = 0.0;
+// lockData: .r=lock confidence, .g=accum frames (for AccumulationMatrix)
+void TAA(inout vec3 nowColor, out vec2 lockData){
+    lockData = vec2(0.0);
 
     vec4 nearFar = getClosestOffsetWithFarthest(texcoord.st, 1.0);
     vec2 velocity = texture(colortex9, nearFar.xy).xy;
@@ -147,7 +148,7 @@ void TAA(inout vec3 nowColor, out float lockOut){
     nowColor = RGB2YCoCgR(ToneMap(nowColor));
     preColor = RGB2YCoCgR(ToneMap(preColor));
 
-    float depth1 = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0).r;
+    float depth1 = texelFetch(depthtex1, ivec2(texcoord * viewSize), 0).r;
     float depthConfidence = 0.0;
 
     #ifdef TAA_DEPTH_CONFIDENCE
@@ -161,15 +162,30 @@ void TAA(inout vec3 nowColor, out float lockOut){
     #endif
 
     #ifdef SPRINGFSR_LUMA_INSTABILITY
-        float curLuma = nowColor.r;  // Y component of YCoCgR
+        float curLuma = nowColor.r;
         float preLuma = preColor.r;
     #endif
 
     #ifdef SPRINGFSR_REACTIVE_MASK
         float reactiveMask = computeReactiveMask(texcoord);
+    #else
+        float reactiveMask = 0.0;
     #endif
 
+    vec3 preClipHistory = preColor;
     preColor = clipHistory(nowColor, preColor, depthConfidence);
+
+    #ifdef SPRINGFSR_LOCK
+        float lockPrev = texelFetch(colortex10, ivec2(texcoord * viewSize), 0).r;
+        float lock = computeLock(lockPrev, velocity, depthConfidence, texcoord);
+        lockData.r = lock;
+    #else
+        float lock = 0.0;
+    #endif
+
+    #ifdef SPRINGFSR_RECTIFY_HISTORY
+        preColor = rectifyHistory(preColor, preClipHistory, lock, reactiveMask);
+    #endif
 
     preColor = UnToneMap(YCoCgR2RGB(preColor));
     nowColor = UnToneMap(YCoCgR2RGB(nowColor));
@@ -180,8 +196,16 @@ void TAA(inout vec3 nowColor, out float lockOut){
         float blendFactor = getBlendFactor(depthConfidence, preColor, nowColor);
     #endif
 
+    #ifdef SPRINGFSR_ACCUMULATION_MATRIX
+        float prevFrames = texelFetch(colortex10, ivec2(texcoord * viewSize), 0).b;
+        float velLen = length(velocity * viewSize);
+        float accumFrames = updateAccumulation(prevFrames, velLen, lock, reactiveMask);
+        blendFactor = accumulationBlend(accumFrames);
+        lockData.g = accumFrames;
+    #endif
+
     #ifdef SPRINGFSR_LUMA_INSTABILITY
-        float instability = lumaInstability(curLuma, preLuma, lockOut);
+        float instability = lumaInstability(curLuma, preLuma, lockData.r);
         blendFactor = applyInstability(blendFactor, instability);
     #endif
 
@@ -190,17 +214,12 @@ void TAA(inout vec3 nowColor, out float lockOut){
     #endif
 
     #ifdef SPRINGFSR_LOCK
-        // Read previous frame lock from colortex10.rg
-        float lockPrev = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).r;
-        float lock = computeLock(lockPrev, velocity, depthConfidence, texcoord);
         blendFactor = applyLock(lock, blendFactor);
-        lockOut = lock;
     #endif
 
     #ifdef SPRINGFSR_SHADING_CHANGE
-        // Read prev shading luma from colortex10.g
-        float prevShadingLuma = texelFetch(colortex10, ivec2(gl_FragCoord.xy), 0).g;
-        float curShadingLuma = nowColor.r;  // Y component = tonemapped luminance
+        float prevShadingLuma = texelFetch(colortex10, ivec2(texcoord * viewSize), 0).g;
+        float curShadingLuma = nowColor.r;
         float shadingChange = detectShadingChange(curShadingLuma, prevShadingLuma);
         blendFactor = applyShadingChange(blendFactor, shadingChange);
     #endif

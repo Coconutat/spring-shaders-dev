@@ -476,7 +476,14 @@ option.SPRINGFSR_MODE.0 = 关闭
 option.SPRINGFSR_MODE.1 = 质量 (0.77x)
 option.SPRINGFSR_MODE.2 = 平衡 (0.67x)
 option.SPRINGFSR_MODE.3 = 性能 (0.50x)
+option.SPRINGFSR_MODE.4 = 超级性能 (0.33x)
 option.SPRINGFSR_MODE.comment = 基于AMD FSR1 EASU的边缘自适应升采样。低分辨率渲染+空间升采样，提升性能
+
+option.SPRINGFSR_RECTIFY_HISTORY = 历史矫正 (FSR3)
+option.SPRINGFSR_RECTIFY_HISTORY.comment = 按 lock/reactive 置信度混合裁剪历史与原始历史，TAA 收敛更平滑
+
+option.SPRINGFSR_ACCUMULATION_MATRIX = 累积矩阵 (FSR3)
+option.SPRINGFSR_ACCUMULATION_MATRIX.comment = 基于帧数的混合因子累积，替代固定混合，画面更快稳定
 
 screen.Others = 其他
 option.NOON_DURATION = 中午时长

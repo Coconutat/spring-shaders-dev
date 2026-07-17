@@ -37,7 +37,7 @@ const bool shadowcolor1Mipmap = false;
 
 void main() {
 	vec4 CT1 = vec4(0.0, 0.0, 0.0, 1.0);
-	vec4 CT3 = texelFetch(colortex3, ivec2(gl_FragCoord.xy), 0);
+	vec4 CT3 = texture(colortex3, texcoord);
 	vec2 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy), 0).rg;
 
 	vec2 hrrUV_a = texcoord * 2.0 - 1.0;

@@ -41,8 +41,8 @@ const bool shadowcolor1Mipmap = false;
 
 void main() {
 	vec4 color = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0);
-	vec4 vxTransColor = texelFetch(colortex16, ivec2(gl_FragCoord.xy), 0);
-	vec2 lmcoord = texelFetch(colortex18, ivec2(gl_FragCoord.xy), 0).rg;
+	vec4 vxTransColor = texture(colortex16, texcoord);
+	vec2 lmcoord = texture(colortex18, texcoord).rg;
 
 	float vxdepth0 = texelFetch(vxDepthTexTrans, ivec2(gl_FragCoord.xy), 0).r;
 	vec4 viewPos0 = screenPosToViewPosVX(vec4(unTAAJitter(texcoord), vxdepth0, 1.0));
@@ -60,8 +60,8 @@ void main() {
 	bool isUnderwater = (isEyeInWater == 1);
 	bool isAbovewater = (isEyeInWater == 0);
 
-	vec4 vxTransData0 = texelFetch(colortex17, ivec2(gl_FragCoord.xy), 0);
-	vec2 vxTransData1 = texelFetch(colortex18, ivec2(gl_FragCoord.xy), 0).rg;
+	vec4 vxTransData0 = texture(colortex17, texcoord);
+	vec2 vxTransData1 = texture(colortex18, texcoord).rg;
 
 	vec3 normalV = normalize(normalDecode(vxTransData0.rg));
 	vec3 normalVO = normalize(normalDecode(vxTransData0.ba));

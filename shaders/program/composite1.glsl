@@ -40,7 +40,7 @@ void main() {
 	vec2 hrrUV_c = texcoord * 2.0 - vec2(0.0, 1.0);
 	vec4 fogColor = vec4(0.0, 0.0, 0.0, 1.0);
 	if(!outScreen(hrrUV_c)){
-		vec4 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy), 0);
+		vec4 CT6 = texture(colortex6, texcoord);
 		float hrrZ = CT6.g;
 
 		vec4 hrrScreenPos = vec4(unTAAJitter(hrrUV_c), hrrZ, 1.0);

@@ -476,7 +476,14 @@ option.SPRINGFSR_MODE.0 = Off
 option.SPRINGFSR_MODE.1 = Quality (0.77x)
 option.SPRINGFSR_MODE.2 = Balanced (0.67x)
 option.SPRINGFSR_MODE.3 = Performance (0.50x)
+option.SPRINGFSR_MODE.4 = Ultra Performance (0.33x)
 option.SPRINGFSR_MODE.comment = AMD FSR1 EASU-based edge-adaptive upscaling. Renders at lower resolution then spatially upscales for performance gains.
+
+option.SPRINGFSR_RECTIFY_HISTORY = Rectify History (FSR3)
+option.SPRINGFSR_RECTIFY_HISTORY.comment = Blends clipped and original history by lock/reactive confidence for smoother TAA convergence.
+
+option.SPRINGFSR_ACCUMULATION_MATRIX = Accumulation Matrix (FSR3)
+option.SPRINGFSR_ACCUMULATION_MATRIX.comment = Frame-count-based blend factor accumulation. Replaces fixed blend with 1/frame weights for faster settling.
 
 screen.Others = Others
 option.NOON_DURATION = Noon Duration

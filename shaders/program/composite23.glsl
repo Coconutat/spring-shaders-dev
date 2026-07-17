@@ -61,7 +61,7 @@ vec3 HDRToneMap(vec3 color) {
 
 
 void main() {
-	vec4 color = max(texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0), 0.0);
+	vec4 color = max(texture(colortex0, texcoord), 0.0);
 
 	#ifdef EXPOSURE
 		avgExposure(color.rgb);
@@ -119,7 +119,7 @@ void main() {
 	vec4 CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy), 0);
 	vec2 uv1 = texcoord * 2.0 - vec2(1.0, 0.0);
 	if(!outScreen(uv1)){
-		CT6 = texelFetch(colortex6, ivec2(gl_FragCoord.xy + vec2(-0.5, 0.5) * viewSize), 0);
+		CT6 = texture(colortex6, texcoord + vec2(-0.25, 0.25)).rgbr;
 	}
 	
 /* DRAWBUFFERS:06 */
