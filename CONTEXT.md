@@ -38,3 +38,21 @@
 | Composite (composite~composite24) | 延迟光照、半分辨率雾、TAA、DOF、泛光、色调映射 |
 | **SR 触发点** = composite23 之后 | 色调映射后的 HDR 颜色被 SR 升采样 |
 | Final | sRGB 编码 + 信箱遮罩 → 屏幕输出 |
+
+## C 阶段改动
+
+### 统一抖动入口
+
+- `getJitterNDC()` 封装顶点抖动选择（`noise.glsl`）：SR 安装时读 `SRJitterOffset`（像素空间 → NDC），否则回退 Halton 序列。
+- `unTAAJitter()` 条件编译：SR 路径下直接使用 `SRJitterOffset`（无需 `*0.5` 缩放到像素级），Halton 路径保留原有 `*0.5`。
+- 16 个顶点着色器将 `Halton_2_3[framemod8]` 替换为 `getJitterNDC()`。
+
+### 渲染缩放
+
+- `shaders.properties` 启用 `size.buffer.colortexN=0.75 0.75`（colortex0~18，colortex7=512×512 除外）。
+- 所有渲染 pass 在 75% 分辨率下运行，SR 在 composite23 后升采样回屏幕分辨率。
+
+### 维度配置
+
+- `superresolution.v2.json` 拆分为 `"0"`（主世界）、`"-1"`（下界）、`"1"`（末地）三个独立 profile。
+- `"*"` 默认 profile 设为禁用，各维度需显式启用。

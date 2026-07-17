@@ -146,7 +146,7 @@ void main() {
 	v_midTexCoord = mc_midTexCoord.xy;
 	v_midBlock = at_midBlock;
 
-	vec2 jitter = Halton_2_3[framemod8];	//-1 to 1
+	vec2 jitter = getJitterNDC();	//-1 to 1
 	jitter *= invViewSize;
 	gl_Position.xyz /= gl_Position.w;
     gl_Position.xy += jitter * TAA_JITTER_AMOUNT;

@@ -58,7 +58,7 @@ void main() {
 
 	N = normalize(gl_NormalMatrix * gl_Normal);
 
-	vec2 jitter = Halton_2_3[framemod8];
+	vec2 jitter = getJitterNDC();
 	jitter *= invViewSize;
 	gl_Position.xyz /= gl_Position.w;
     gl_Position.xy += jitter * TAA_JITTER_AMOUNT;

@@ -9,10 +9,26 @@ const vec2 Halton_2_3[8] = vec2[](
     vec2(-7.0f / 8.0f, 7.0f / 9.0f)
 );
 
+// C 阶段：统一抖动入口，SR 安装时使用 SRJitterOffset，否则回退 Halton
+vec2 getJitterNDC() {
+	#ifdef SR_INSTALLED
+		return SRJitterOffset * 2.0;	// SRJitterOffset [-0.5,0.5] 像素 → [-1,1] NDC
+	#else
+		return Halton_2_3[framemod8];	// [-1,1]
+	#endif
+}
+
 vec2 unTAAJitter(vec2 uv){
-    vec2 jitter = Halton_2_3[framemod8];	//-1 to 1
-	jitter *= invViewSize;
-    vec2 newUV = uv - jitter * TAA_JITTER_AMOUNT * 0.5;
+    vec2 jitter;
+    #ifdef SR_INSTALLED
+        jitter = SRJitterOffset;	        // [-0.5, 0.5] 像素
+        jitter *= invViewSize;		        // 转 UV 空间
+    #else
+        jitter = Halton_2_3[framemod8];	    // [-1, 1]
+        jitter *= invViewSize;		        // 转 UV 空间
+        jitter *= 0.5;				        // Halton[-1,1] → 像素级偏移
+    #endif
+    vec2 newUV = uv - jitter * TAA_JITTER_AMOUNT;
 
     return newUV;
 }

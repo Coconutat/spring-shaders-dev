@@ -314,7 +314,7 @@ void main() {
 	worldDis0 = length(vWorldPos.xyz);
 	vMcPos = vec4(vWorldPos.xyz + cameraPosition, 1.0);
 
-	vec2 jitter = Halton_2_3[framemod8];	//-1 to 1
+	vec2 jitter = getJitterNDC();	//-1 to 1
 	jitter *= invViewSize;
 	gl_Position.xyz /= gl_Position.w;
     gl_Position.xy += jitter * TAA_JITTER_AMOUNT;

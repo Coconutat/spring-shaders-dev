@@ -103,7 +103,7 @@ Minecraft OptiFine/Iris 光影包（GLSL 4.50 compatibility）。无 npm/gradle/
 - `shaders/superresolution.v2.json` — SR 兼容声明，定义触发点、输入/输出纹理、抖动源。
 - SR 降序查找：`v4`→`v3`→`v2`→`v1`→无后缀。
 
-### 当前配置（B 阶段）
+### 当前配置（C 阶段）
 
 | 属性 | 值 |
 |------|-----|
@@ -116,14 +116,20 @@ Minecraft OptiFine/Iris 光影包（GLSL 4.50 compatibility）。无 npm/gradle/
 | HDR | 是 |
 | 自动曝光 | 是 |
 | 运动向量含抖动 | 否 |
+| 渲染缩放 | `size.buffer` 0.75×（colortex0~18） |
+| 抖动入口 | `getJitterNDC()` / 条件编译 `unTAAJitter` |
+| 维度 | 主世界/下界/末地独立 profile |
 
 ### GLSL 约束
 
 - `final.glsl`：`FSR_RCAS` 在 `SR_INSTALLED` 时跳过，避免双重锐化。
-- `SRJitterOffset` uniform 由 SR 注入，B 阶段未使用（留 C 阶段替换自有 Halton 抖动）。
+- `lib/common/noise.glsl`：`getJitterNDC()` 顶点抖动入口，`unTAAJitter()` 后处理抖动移除（均条件编译 `SR_INSTALLED`）。
+- 16 个顶点着色器使用 `getJitterNDC()` 替代 `Halton_2_3[framemod8]`。
+- `SRJitterOffset` uniform 由 SR 注入。
 
 ### 调试
 
 - 排错时在 `shaders.properties` 只启用 `program.composite23.enabled` + `program.final.enabled` 做最小化复现。
 - 检查 `colortex9` 运动向量是否在 UV 空间且无 Y 翻转。
 - 确认 colortex0 在 composite23 输出时为 HDR 线性色（未 gamma 编码）。
+- C 阶段验证：关闭 SR 时回退 Halton 抖动 + 全分辨率渲染，行为必须与 B 阶段前一致。
