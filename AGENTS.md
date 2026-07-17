@@ -95,3 +95,35 @@ Minecraft OptiFine/Iris 光影包（GLSL 4.50 compatibility）。无 npm/gradle/
 ### 死代码
 
 仓库内 `* copy.glsl` 文件（如 `fog copy.glsl`、`parallaxMapping copy.glsl` 等）是备份/草稿，不在当前 include 链中，不应引用或修改。
+
+## Super Resolution Mod 兼容性
+
+### 配置文件
+
+- `shaders/superresolution.v2.json` — SR 兼容声明，定义触发点、输入/输出纹理、抖动源。
+- SR 降序查找：`v4`→`v3`→`v2`→`v1`→无后缀。
+
+### 当前配置（B 阶段）
+
+| 属性 | 值 |
+|------|-----|
+| 触发点 | `AFTER composite23`（色调映射后） |
+| 抖动源 | `mod`（SR 生成） |
+| 输入颜色 | colortex0 (RGBA16F) |
+| 输入深度 | depthtex |
+| 运动向量 | colortex9.rg（UV 空间，无 Y 翻转） |
+| 输出 | colortex0，全屏幕分辨率 |
+| HDR | 是 |
+| 自动曝光 | 是 |
+| 运动向量含抖动 | 否 |
+
+### GLSL 约束
+
+- `final.glsl`：`FSR_RCAS` 在 `SR_INSTALLED` 时跳过，避免双重锐化。
+- `SRJitterOffset` uniform 由 SR 注入，B 阶段未使用（留 C 阶段替换自有 Halton 抖动）。
+
+### 调试
+
+- 排错时在 `shaders.properties` 只启用 `program.composite23.enabled` + `program.final.enabled` 做最小化复现。
+- 检查 `colortex9` 运动向量是否在 UV 空间且无 Y 翻转。
+- 确认 colortex0 在 composite23 输出时为 HDR 线性色（未 gamma 编码）。
