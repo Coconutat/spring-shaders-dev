@@ -1,1 +1,10 @@
 .opencode
+
+# tmp files
+tmpfiles
+
+# compressed file
+*.zip
+*.7z
+*.tar
+*.tar.*
