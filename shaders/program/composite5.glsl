@@ -32,6 +32,8 @@ const bool shadowtex1Mipmap = false;
 const bool shadowcolor0Mipmap = false;
 const bool shadowcolor1Mipmap = false;
 #include "/lib/atmosphere/fog.glsl"
+#include "/lib/camera/motionBlur.glsl"
+#include "/lib/camera/depthOfField.glsl"
 
 void main() {
 	float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
@@ -64,9 +66,6 @@ void main() {
 
 	#if defined UNDERWATER_FOG || defined ATMOSPHERIC_SCATTERING_FOG || defined VOLUMETRIC_FOG
 		vec4 fogColor = getFog(depth);
-		// if(dot(fogColor.rgb, fogColor.rgb) < 1e-7){
-		// 	fogColor.a = 1.0;
-		// }
 		#ifdef UNDERWATER_FOG
 			if(isEyeInWater == 1){
 				color.rgb = mix(color.rgb, fogColor.rgb, saturate(worldDis / UNDERWATER_FOG_MIST));
@@ -83,10 +82,16 @@ void main() {
 				color.rgb += fogColor.rgb;
 			}
 		#endif
-		// color.rgb = vec3(fogColor.rgb);
 	#endif
 
-	// color.rgb = texture(colortex1, texcoord).rgb;
+	// 合并 composite6: 运动模糊 + CoC
+	#ifdef MOTION_BLUR
+		color.rgb = motionBlur(color.rgb);
+	#endif
+
+	#ifdef DEPTH_OF_FIELD
+		color.a = calculateCoC();
+	#endif
 	
 /* DRAWBUFFERS:0 */
 	gl_FragData[0] = color;
