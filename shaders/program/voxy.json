@@ -26,7 +26,10 @@
         "framemod8",
         "isEyeInWater",
 
-        "voxyTaaAmount"
+        "voxyTaaAmount",
+
+        "springJitterNDC",
+        "springJitterUV"
     ],
 
     "samplers": {
@@ -40,17 +43,7 @@
 
     "taaOffset":"
     {
-        const vec2 Halton_2_3[8] = vec2[](
-            vec2(0.0f, -1.0f / 3.0f),
-            vec2(-1.0f / 2.0f, 1.0f / 3.0f),
-            vec2(1.0f / 2.0f, -7.0f / 9.0f),
-            vec2(-3.0f / 4.0f, -1.0f / 9.0f),
-            vec2(1.0f / 4.0f, 5.0f / 9.0f),
-            vec2(-1.0f / 4.0f, -5.0f / 9.0f),
-            vec2(3.0f / 4.0f, 1.0f / 9.0f),
-            vec2(-7.0f / 8.0f, 7.0f / 9.0f)
-        );
-        return Halton_2_3[frameCounter % 8] * invViewSize * voxyTaaAmount;
+        return springJitterNDC * invViewSize * voxyTaaAmount;
     }
     "
 }

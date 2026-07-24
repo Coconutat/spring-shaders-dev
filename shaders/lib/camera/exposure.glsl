@@ -1,5 +1,9 @@
 #ifdef CALCULATE_AVERAGE_LUMINANCE
 
+// Iris size.buffer UV mapping — declared here (VSH-only context)
+// because Iris injects it only for fragment shaders
+uniform vec4 uvTable[16];
+
 float calculateAverageLuminance() {
     int samplerLod = int(log2(min(viewWidth, viewHeight)));
     return max(getLuminance(colortex0, vec2(0.5, 0.5), samplerLod), 0.001);

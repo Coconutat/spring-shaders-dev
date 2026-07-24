@@ -103,12 +103,12 @@ Minecraft OptiFine/Iris 光影包（GLSL 4.50 compatibility）。无 npm/gradle/
 - `shaders/superresolution.v2.json` — SR 兼容声明，定义触发点、输入/输出纹理、抖动源。
 - SR 降序查找：`v4`→`v3`→`v2`→`v1`→无后缀。
 
-### 当前配置（C 阶段）
+### 当前配置（E 阶段 — 变量桥接）
 
 | 属性 | 值 |
 |------|-----|
-| 触发点 | `AFTER composite23`（色调映射后） |
-| 抖动源 | `mod`（SR 生成） |
+| 触发点 | `AFTER composite21`（bloom 后，色调映射前） |
+| 抖动源 | `mod`（SR 生成）；变量桥接层 `shaders.properties` `#if SR_ALGO_SUPPORTS_JITTER == 1` 自动切换 |
 | 输入颜色 | colortex0 (RGBA16F) |
 | 输入深度 | depthtex |
 | 运动向量 | colortex9.rg（UV 空间，无 Y 翻转） |
@@ -116,20 +116,23 @@ Minecraft OptiFine/Iris 光影包（GLSL 4.50 compatibility）。无 npm/gradle/
 | HDR | 是 |
 | 自动曝光 | 是 |
 | 运动向量含抖动 | 否 |
-| 渲染缩放 | `size.buffer` 0.75×（colortex0~18） |
-| 抖动入口 | `getJitterNDC()` / 条件编译 `unTAAJitter` |
+| 渲染缩放 | `#if SR_SHOULD_APPLY_SCALE == 1 / SR_RENDER_SCALE_FACTOR` — 动态跟随算法/质量参数 |
+| 缩放缓冲 | colortex 0-6, 9-13, 15-18（排除 7/8/14） |
+| 抖动入口 | `springJitterNDC` / `springJitterUV`（GLSL 零条件编译） |
 | 维度 | 主世界/下界/末地独立 profile |
 
 ### GLSL 约束
 
 - `final.glsl`：`FSR_RCAS` 在 `SR_INSTALLED` 时跳过，避免双重锐化。
-- `lib/common/noise.glsl`：`getJitterNDC()` 顶点抖动入口，`unTAAJitter()` 后处理抖动移除（均条件编译 `SR_INSTALLED`）。
+- `shaders.properties` 变量桥接层：`#if SR_ALGO_SUPPORTS_JITTER == 1` → `SRJitterOffset`；`#else` → `Halton_2_3[framemod8]`。输出 `springJitterNDC` / `springJitterUV`。
+- `lib/common/noise.glsl`：`getJitterNDC()` 直接返回 `springJitterNDC`，`unTAAJitter()` 使用 `springJitterUV`。
 - 16 个顶点着色器使用 `getJitterNDC()` 替代 `Halton_2_3[framemod8]`。
-- `SRJitterOffset` uniform 由 SR 注入。
+- `voxy.json`：`taaOffset` 使用 `springJitterNDC` 而非独立 Halton。
 
 ### 调试
 
-- 排错时在 `shaders.properties` 只启用 `program.composite23.enabled` + `program.final.enabled` 做最小化复现。
+- 排错时在 `shaders.properties` 先确认 `SR_SHOULD_APPLY_SCALE` 是否按预期定义，临时只启用 `program.composite21.enabled` + `program.final.enabled` 做最小化复现。
 - 检查 `colortex9` 运动向量是否在 UV 空间且无 Y 翻转。
-- 确认 colortex0 在 composite23 输出时为 HDR 线性色（未 gamma 编码）。
-- C 阶段验证：关闭 SR 时回退 Halton 抖动 + 全分辨率渲染，行为必须与 B 阶段前一致。
+- 确认 colortex0 在 composite21 输出时为 HDR 线性色（未 gamma 编码）。
+- SR 开启时：检查 `springJitterNDC` 是否来自 `SRJitterOffset`；`size.buffer` 是否按 `SR_RENDER_SCALE_FACTOR` 缩放。
+- SR 关闭时：回退 `Halton_2_3[framemod8]` + 全分辨率渲染，行为必须与改动前一致。

@@ -19,19 +19,22 @@
         "internal_format": "rgba16f",
         "trigger": {
           "type": "AFTER",
-          "pass": "composite23"
-        }
-      },
-      "inputs": {
-        "color":         { "enabled": true, "src": "colortex0" },
-        "depth":         { "enabled": true, "src": "depthtex" },
-        "motion_vectors": { "enabled": true, "src": "colortex9" }
-      },
-      "outputs": {
-        "upscaled_color": {
-          "enabled": true,
-          "target": ["colortex0"],
-          "region": [0, 0, -2, -2]
+          "pass": "composite21"
+        },
+        "inputs": {
+          "color":         { "enabled": true, "src": "colortex0", "region": [0, 0, -1, -1] },
+          "depth":         { "enabled": true, "src": "depthtex", "region": [0, 0, -1, -1] },
+          "motion_vectors": { "enabled": true, "src": "colortex9", "region": [0, 0, -1, -1] }
+        },
+        "outputs": {
+          "upscaled_color": {
+            "enabled": true,
+            "target": ["colortex0"],
+            "region": [0, 0, -2, -2]
+          }
+        },
+        "customs": {
+          "motion_vector_preprocessing_function": "vec2 motionVectorPreprocessing(vec2 mv) { float lenMv = length(mv); if (lenMv > 0.4) { mv *= 0.4 / lenMv; } return mv; }"
         }
       }
     },
@@ -49,19 +52,22 @@
         "internal_format": "rgba16f",
         "trigger": {
           "type": "AFTER",
-          "pass": "composite23"
-        }
-      },
-      "inputs": {
-        "color":         { "enabled": true, "src": "colortex0" },
-        "depth":         { "enabled": true, "src": "depthtex" },
-        "motion_vectors": { "enabled": true, "src": "colortex9" }
-      },
-      "outputs": {
-        "upscaled_color": {
-          "enabled": true,
-          "target": ["colortex0"],
-          "region": [0, 0, -2, -2]
+          "pass": "composite21"
+        },
+        "inputs": {
+          "color":         { "enabled": true, "src": "colortex0", "region": [0, 0, -1, -1] },
+          "depth":         { "enabled": true, "src": "depthtex", "region": [0, 0, -1, -1] },
+          "motion_vectors": { "enabled": true, "src": "colortex9", "region": [0, 0, -1, -1] }
+        },
+        "outputs": {
+          "upscaled_color": {
+            "enabled": true,
+            "target": ["colortex0"],
+            "region": [0, 0, -2, -2]
+          }
+        },
+        "customs": {
+          "motion_vector_preprocessing_function": "vec2 motionVectorPreprocessing(vec2 mv) { float lenMv = length(mv); if (lenMv > 0.4) { mv *= 0.4 / lenMv; } return mv; }"
         }
       }
     },
@@ -79,19 +85,22 @@
         "internal_format": "rgba16f",
         "trigger": {
           "type": "AFTER",
-          "pass": "composite23"
-        }
-      },
-      "inputs": {
-        "color":         { "enabled": true, "src": "colortex0" },
-        "depth":         { "enabled": true, "src": "depthtex" },
-        "motion_vectors": { "enabled": true, "src": "colortex9" }
-      },
-      "outputs": {
-        "upscaled_color": {
-          "enabled": true,
-          "target": ["colortex0"],
-          "region": [0, 0, -2, -2]
+          "pass": "composite21"
+        },
+        "inputs": {
+          "color":         { "enabled": true, "src": "colortex0", "region": [0, 0, -1, -1] },
+          "depth":         { "enabled": true, "src": "depthtex", "region": [0, 0, -1, -1] },
+          "motion_vectors": { "enabled": true, "src": "colortex9", "region": [0, 0, -1, -1] }
+        },
+        "outputs": {
+          "upscaled_color": {
+            "enabled": true,
+            "target": ["colortex0"],
+            "region": [0, 0, -2, -2]
+          }
+        },
+        "customs": {
+          "motion_vector_preprocessing_function": "vec2 motionVectorPreprocessing(vec2 mv) { float lenMv = length(mv); if (lenMv > 0.4) { mv *= 0.4 / lenMv; } return mv; }"
         }
       }
     }

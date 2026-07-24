@@ -147,6 +147,10 @@ uniform float HdrGameMinimumBrightness;
 uniform float HdrUIBrightness;
 #endif
 
+// SR 抖动桥接 uniform — 始终存在，由 shaders.properties 根据 SR_ALGO_SUPPORTS_JITTER 自动切换来源
+uniform vec2 springJitterNDC;   // [-1,1] NDC 空间抖动，SR 启用时来自 SRJitterOffset，否则 Halton 回退
+uniform vec2 springJitterUV;    // UV 空间抖动 = springJitterNDC * invViewSize * 0.5
+
 uniform float rainStrength; 
 uniform float wetness;
 
