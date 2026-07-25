@@ -101,6 +101,9 @@ void main() {
 		cloudScattering = max(cloudScattering, vec3(0.0));
 		color.rgb = color.rgb * cloudTransmittance + cloudScattering;
 
+		// 缓存云透射率到 alpha → deferred3 读取（透射率=1 时 alpha 非零，避免首帧误判）
+		CT7.a = max(cloudTransmittance, 0.001);
+
 		float VoL = saturate(dot(worldDir, sunWorldDir));
 		float phase = saturate(phasefunc_KleinNishina(VoL, 0.66 - 0.56 * rainStrength));
 		if(cloudTransmittance < 1.0){
@@ -144,9 +147,8 @@ void main() {
 			CT7.rgb = mix(texture(colortex7, texcoord).rgb, CT7.rgb, 0.05);
 	}
 
-/* RENDERTARGETS: 7,3 */
+/* DRAWBUFFERS:7 */
 	gl_FragData[0] = CT7;
-	gl_FragData[1] = intScattTrans;
 }
 
 #endif

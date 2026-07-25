@@ -68,9 +68,13 @@ void main() {
 
 		vec4 intScattTrans = vec4(vec3(0.0), 1.0);
 		if(isSkyHRR(texcoord * 2 - vec2(1.0, 0.0)) > 0.5 && camera.y < 5000.0) {
-			// 复用 deferred11 的 octahedral cloud 缓存 → colortex3
+			// 复用 deferred11 的 cloud 透射率缓存 → colortex7 alpha
 			vec2 octaUV = directionToOctahedral(hrrWorldDirO);
-			intScattTrans = texture(colortex3, octaUV);
+			vec4 octaCloud = textureLod(colortex7, octaUV, 0);
+			float cloudTransmittance = octaCloud.a;
+			// 从透射率估算散射：云越厚散射越强，颜色接近阳光
+			vec3 estScattering = sunColor * (1.0 - cloudTransmittance) * 0.4;
+			intScattTrans = vec4(estScattering, cloudTransmittance);
 
 			intScattTrans = temporal_cloud3D(intScattTrans);
 			intScattTrans.rgb = max(vec3(0.0), intScattTrans.rgb);

@@ -21,7 +21,7 @@ float sampleCloudDensityLow(vec3 cameraPos, float height_fraction, bool doCheapl
     coverage = saturate(1.5 * coverage - 0.5 * height_fraction);
     coverage = saturate(1.0 - CLOUD_COVERAGE * coverage - CLOUD_RAIN_ADD_COVERAGE * rainStrength + 0.05);
 
-    vec4 low_frequency_noise = textureLod(colortex8, cameraPos * (0.00045 * CLOUD_SCALE) + vec3(0.0, VOLUME_CLOUD_NOISE_SEED, 0.0), doCheaply ? 2.0 : 0.0);
+    vec4 low_frequency_noise = textureLod(colortex8, cameraPos * (0.00045 * CLOUD_SCALE) + vec3(0.0, VOLUME_CLOUD_NOISE_SEED, 0.0), 0);
     float perlin3d = low_frequency_noise.r;
     vec3 worley3d = low_frequency_noise.gba;
     float worley3d_FBM = worley3d.r * 0.625 + worley3d.g * 0.25 + worley3d.b * 0.125;
@@ -34,7 +34,7 @@ float sampleCloudDensityLow(vec3 cameraPos, float height_fraction, bool doCheapl
 float sampleCloudDensityHigh(vec3 cameraPos, float base_cloud, float height_fraction, vec3 wind_direction, bool doCheaply){
     float final_cloud = base_cloud;
 
-    vec4 high_frequency_noises = textureLod(colortex2, cameraPos * (0.004 * CLOUD_SCALE) - 0.045 * wind_direction * frameTimeCounter * CLOUD_SPEED, doCheaply ? 2.0 : 0.0);
+    vec4 high_frequency_noises = textureLod(colortex2, cameraPos * (0.004 * CLOUD_SCALE) - 0.045 * wind_direction * frameTimeCounter * CLOUD_SPEED, 0);
     float high_freq_FBM = high_frequency_noises.r * 0.625 + high_frequency_noises.g * 0.25 + high_frequency_noises.b * 0.125;
     float high_freq_noise_modifier = lerp(high_freq_FBM * 4.0, 1.0 - high_freq_FBM, saturate(height_fraction * 5.0));  
     // float height_factor = remapSaturate(pow(height_fraction, 1.0), 0.0, 1.0, 0.66, 1.0);
