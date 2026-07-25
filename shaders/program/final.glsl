@@ -1,3 +1,8 @@
+// ===== SR MOD Debug =====
+// 启用后左上角显示 3 个状态色块，调试完成后注释此行即可关闭
+#define SR_DEBUG
+// =========================
+
 varying vec2 texcoord;
 
 
@@ -84,6 +89,41 @@ void main() {
 	#else
 		gl_FragData[0] = saturate(vec4(color.rgb, 1.0));
 	#endif
+
+	// ===== SR Debug 色块（左上角）=====
+	#ifdef SR_DEBUG
+	{
+		ivec2 p = ivec2(gl_FragCoord.xy);
+		int y = int(viewSize.y);
+
+		// 色块 1: SR_INSTALLED   — 🟢已安装 / 🔴未安装
+		if (p.x < 16 && p.y > y - 16 && p.y <= y - 8) {
+			#ifdef SR_INSTALLED
+				color.rgb = vec3(0.0, 1.0, 0.0);
+			#else
+				color.rgb = vec3(1.0, 0.0, 0.0);
+			#endif
+		}
+		// 色块 2: SR_ENABLE      — 🟡已启用 / ⚫未启用
+		if (p.x < 16 && p.y > y - 32 && p.y <= y - 24) {
+			#if defined(SR_ENABLE) && SR_ENABLE == 1
+				color.rgb = vec3(1.0, 1.0, 0.0);
+			#else
+				color.rgb = vec3(0.25, 0.25, 0.25);
+			#endif
+		}
+		// 色块 3: 抖动源          — 🔵SR抖动 / 🟣Halton回退
+		if (p.x < 16 && p.y > y - 48 && p.y <= y - 40) {
+			#ifdef SR_INSTALLED
+				color.rgb = vec3(0.0, 0.5, 1.0);
+			#else
+				color.rgb = vec3(0.5, 0.0, 0.5);
+			#endif
+		}
+	}
+	#endif
+	// ===== SR Debug End =====
+
 }
 
 #endif
