@@ -78,7 +78,7 @@ float computeCrepuscularLight(vec4 viewPos){
 }
 
 #ifdef PROGRAM_VLF
-float sampleFogDensityLow(vec3 cameraPos, float height_fraction){
+float sampleFogDensityLow(vec3 cameraPos, float height_fraction, bool doCheaply){
     vec4 weatherData = textureNice(noisetex, cameraPos.xz * 0.00045 + vec2(0.17325, 0.17325), 128);
     float coverage = saturate(mix(weatherData.r, weatherData.g, 0.5));
     coverage = pow(coverage, remapSaturate(height_fraction, 0.1, 0.75, 0.6, 1.2));
@@ -101,7 +101,7 @@ float sampleFogDensityLow(vec3 cameraPos, float height_fraction){
     cameraPos.y *= 1.33;
     
 
-    vec4 low_frequency_noise = texture(colortex8, cameraPos * 0.0025 + vec3(0.0, 0.9, 0.0));
+    vec4 low_frequency_noise = textureLod(colortex8, cameraPos * 0.0025 + vec3(0.0, 0.9, 0.0), doCheaply ? 2.0 : 0.0);
     float perlin3d = low_frequency_noise.r;
     vec3 worley3d = low_frequency_noise.gba;
     float worley3d_FBM = worley3d.r * 0.625 + worley3d.g * 0.25 + worley3d.b * 0.125;
@@ -113,10 +113,10 @@ float sampleFogDensityLow(vec3 cameraPos, float height_fraction){
     return base;
 }
 
-float sampleFogDensityHigh(vec3 cameraPos, float base, float height_fraction, vec3 wind_direction){
+float sampleFogDensityHigh(vec3 cameraPos, float base, float height_fraction, vec3 wind_direction, bool doCheaply){
     float finalFog = base;
 
-    vec4 high_frequency_noises = texture(colortex2, cameraPos * 0.055 + 0.025 * wind_direction * frameTimeCounter);
+    vec4 high_frequency_noises = textureLod(colortex2, cameraPos * 0.055 + 0.025 * wind_direction * frameTimeCounter, doCheaply ? 2.0 : 0.0);
     float high_freq_FBM = high_frequency_noises.r * 0.5 + high_frequency_noises.g * 0.25 + high_frequency_noises.b * 0.125;
     float high_freq_noise_modifier = lerp(high_freq_FBM, 1.0 - high_freq_FBM, saturate(height_fraction * 10.0));    
     finalFog = remapSaturate(finalFog, high_freq_noise_modifier * 0.5, 1.0, 0.0, 1.0);
@@ -132,10 +132,10 @@ float sampleFogDensity(vec3 cameraPos, float fogMaxDistance, bool doCheaply){
     float fade = remapSaturate(length(cameraPos - camera), fogMaxDistance * 0.8, fogMaxDistance * 1.0, 1.0, 0.0);
     cameraPos += wind_direction * frameTimeCounter * 0.66;
 
-    float base = sampleFogDensityLow(cameraPos, height_fraction);
+    float base = sampleFogDensityLow(cameraPos, height_fraction, doCheaply);
     float finalFog = base;
     if(!doCheaply){
-        finalFog = sampleFogDensityHigh(cameraPos, base, height_fraction, wind_direction);
+        finalFog = sampleFogDensityHigh(cameraPos, base, height_fraction, wind_direction, doCheaply);
     }
 
     finalFog *= remapSaturate(height_fraction, 0.45, 1.0, 1.0, 0.0);

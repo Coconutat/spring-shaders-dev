@@ -32,7 +32,9 @@ varying mat3 tbnMatrix;
 
 #include "/lib/water/waterNormal.glsl"
 #include "/lib/water/waterFog.glsl"
+#ifdef PATH_TRACING
 #include "/lib/lighting/pathTracing.glsl"
+#endif
 #include "/lib/water/waterReflectionRefraction.glsl"
 #include "/lib/surface/PBR.glsl"
 

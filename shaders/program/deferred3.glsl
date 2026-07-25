@@ -29,6 +29,7 @@ const bool shadowcolor0Mipmap = false;
 const bool shadowcolor1Mipmap = false;
 #include "/lib/common/gbufferData.glsl"
 #include "/lib/common/materialIdMapper.glsl"
+#include "/lib/common/octahedralMapping.glsl"
 #include "/lib/lighting/voxelization.glsl"
 #include "/lib/lighting/RSM.glsl"
 
@@ -67,16 +68,10 @@ void main() {
 
 		vec4 intScattTrans = vec4(vec3(0.0), 1.0);
 		if(isSkyHRR(texcoord * 2 - vec2(1.0, 0.0)) > 0.5 && camera.y < 5000.0) {
-			float d_p2a = RaySphereIntersection(earthPos, hrrWorldDir, vec3(0.0), earth_r + atmosphere_h).y;
-			float d_p2e = RaySphereIntersection(earthPos, hrrWorldDirO, vec3(0.0), earth_r).x;
-			float d = d_p2e > 0.0 ? d_p2e : d_p2a;
-			float dist1 = hrrZ == 1.0 ? d : hrrWorldDis1;
+			// 复用 deferred11 的 octahedral cloud 缓存 → colortex3
+			vec2 octaUV = directionToOctahedral(hrrWorldDirO);
+			intScattTrans = texture(colortex3, octaUV);
 
-			
-			float cloudHitLength = 0.0;
-			#ifdef VOLUMETRIC_CLOUDS
-				cloudRayMarching(camera, hrrWorldDirO * dist1, intScattTrans, cloudHitLength);
-			#endif
 			intScattTrans = temporal_cloud3D(intScattTrans);
 			intScattTrans.rgb = max(vec3(0.0), intScattTrans.rgb);
 			intScattTrans.a = saturate(intScattTrans.a);

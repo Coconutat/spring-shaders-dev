@@ -24,7 +24,9 @@ const bool shadowtex1Mipmap = false;
 const bool shadowcolor0Mipmap = false;
 const bool shadowcolor1Mipmap = false;
 #include "/lib/lighting/lightmap.glsl"
+#ifdef PATH_TRACING
 #include "/lib/lighting/pathTracing.glsl"
+#endif
 #include "/lib/water/waterReflectionRefraction.glsl"
 #include "/lib/surface/PBR.glsl"
 

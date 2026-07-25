@@ -29,7 +29,9 @@ const bool shadowcolor1Mipmap = false;
 // #include "/lib/lighting/lightmap.glsl"
 // #include "/lib/atmosphere/celestial.glsl"
 
+#ifdef PATH_TRACING
 #include "/lib/lighting/pathTracing.glsl"
+#endif
 #include "/lib/water/waterReflectionRefraction.glsl"
 #include "/lib/surface/PBR.glsl"
 #include "/lib/common/octahedralMapping.glsl"

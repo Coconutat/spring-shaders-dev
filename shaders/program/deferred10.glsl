@@ -38,14 +38,18 @@ const bool shadowcolor1Mipmap = false;
 #include "/lib/lighting/lightmap.glsl"
 #include "/lib/lighting/shadowMapping.glsl"
 #include "/lib/lighting/screenSpaceShadow.glsl"
+#if defined PATH_TRACING || defined COLORED_LIGHT
 #include "/lib/lighting/voxelization.glsl"
+#endif
 #include "/lib/lighting/RSM.glsl"
 #include "/lib/lighting/SSAO.glsl"
 #include "/lib/surface/PBR.glsl"
 
 #include "/lib/atmosphere/fog.glsl"
 #include "/lib/atmosphere/celestial.glsl"
+#ifdef PATH_TRACING
 #include "/lib/lighting/pathTracing.glsl"
+#endif
 #include "/lib/atmosphere/clouds2D.glsl"
 
 

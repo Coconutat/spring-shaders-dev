@@ -144,8 +144,9 @@ void main() {
 			CT7.rgb = mix(texture(colortex7, texcoord).rgb, CT7.rgb, 0.05);
 	}
 
-/* DRAWBUFFERS:7 */
+/* RENDERTARGETS: 7,3 */
 	gl_FragData[0] = CT7;
+	gl_FragData[1] = intScattTrans;
 }
 
 #endif

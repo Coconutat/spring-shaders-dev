@@ -32,7 +32,9 @@ const bool shadowcolor1Mipmap = false;
 
 #include "/lib/surface/PBR.glsl"
 #include "/lib/common/gbufferData.glsl"
+#ifdef PATH_TRACING
 #include "/lib/lighting/pathTracing.glsl"
+#endif
 #include "/lib/lighting/lightmap.glsl"
 #include "/lib/water/waterFog.glsl"
 #include "/lib/water/waterReflectionRefraction.glsl"

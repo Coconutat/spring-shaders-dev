@@ -1,5 +1,14 @@
-/*
+# Standard
 !/.gitignore
 !/LICENSE
 !/README.md
 !/shaders/
+tmpfiles/
+docs/
+CONTEXT.md
+
+# Archive
+*.zip
+*.7z
+*.tar
+*.tar.*
